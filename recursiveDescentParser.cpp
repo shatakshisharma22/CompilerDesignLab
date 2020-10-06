@@ -1,133 +1,70 @@
 #include <stdio.h>
 #include <string.h>
-char input[100];
-char prod[100][100];
-int pos = -1, l, st = -1;
-char id, num;
+#include <ctype.h>
+
+char input[10];
+int i, error;
 void E();
 void T();
+void Eprime();
+void Tprime();
 void F();
-void advance();
-void Td();
-void Ed();
-void advance()
+main()
 {
-    pos++;
-    if (pos < l)
-    {
-        if (input[pos] >= '0' && input[pos] <= '9')
-        {
-            num = input[pos];
-            id = '\0';
-        }
-        if ((input[pos] >= 'a' || input[pos] >= 'A') && (input[pos] <= 'z' || input[pos] <= 'Z'))
-        {
-            id = input[pos];
-            num = '\0';
-        }
-    }
+    i = 0;
+    error = 0;
+    printf("Enter an arithmetic expression   :  ");
+    gets(input);
+    E();
+    if (strlen(input) == i && error == 0)
+        printf("\nAccepted..!!!\n");
+    else
+        printf("\nRejected..!!!\n");
 }
+
 void E()
 {
-    strcpy(prod[++st], "E->TE'");
     T();
-    Ed();
+    Eprime();
 }
-void Ed()
+void Eprime()
 {
-    int p = 1;
-    if (input[pos] == '+')
+    if (input[i] == '+')
     {
-        p = 0;
-        strcpy(prod[++st], "E'->+TE'");
-        advance();
+        i++;
         T();
-        Ed();
-    }
-    if (input[pos] == '-')
-    {
-        p = 0;
-        strcpy(prod[++st], "E'->-TE'");
-        advance();
-        T();
-        Ed();
-    }
-
-    // Recursive Descent Parser
-    if (p == 1)
-    {
-        strcpy(prod[++st], "E'->null");
+        Eprime();
     }
 }
-
 void T()
 {
-    strcpy(prod[++st], "T->FT'");
     F();
-    Td();
+    Tprime();
 }
-void Td()
+void Tprime()
 {
-    int p = 1;
-    if (input[pos] == '*')
+    if (input[i] == '*')
     {
-        p = 0;
-        strcpy(prod[++st], "T'->*FT'");
-        advance();
+        i++;
         F();
-        Td();
+        Tprime();
     }
-    if (input[pos] == '/')
-    {
-        p = 0;
-        strcpy(prod[++st], "T'->/FT'");
-        advance();
-        F();
-        Td();
-    }
-    if (p == 1)
-        strcpy(prod[++st], "T'->null");
 }
 void F()
 {
-    if (input[pos] == id)
+    if (isalnum(input[i]))
+        i++;
+    else if (input[i] == '(')
     {
-        strcpy(prod[++st], "F->id");
-        advance();
-    }
-    if (input[pos] == '(')
-    {
-        strcpy(prod[++st], "F->(E)");
-        advance();
+        i++;
         E();
-        if (input[pos] == ')')
-        {
-            //strcpy(prod[++st],"F->(E)");
-            advance();
-        }
+        if (input[i] == ')')
+            i++;
+
+        else
+            error = 1;
     }
-    if (input[pos] == num)
-    {
-        strcpy(prod[++st], "F->num");
-        advance();
-    }
-}
-int main()
-{
-    int i;
-    printf("Enter Input String ");
-    scanf("%s", input);
-    l = strlen(input);
-    input[l] = '$';
-    advance();
-    E();
-    if (pos == l)
-    {
-        printf("String Accepted\n");
-    }
+
     else
-    {
-        printf("String rejected\n");
-    }
-    return 0;
+        error = 1;
 }
